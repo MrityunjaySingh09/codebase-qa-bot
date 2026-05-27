@@ -18,6 +18,8 @@ Design decisions:
 """
 
 import hashlib
+import os
+import stat
 import re
 import shutil
 from dataclasses import dataclass
@@ -71,6 +73,14 @@ def _repo_dir(owner: str, name: str, base: Path) -> Path:
     """Deterministic local directory for a repo."""
     slug = f"{owner}__{name}".lower()
     return base / slug
+
+
+def _rmtree_onerror(func, path, exc_info):
+    """Error handler for shutil.rmtree to remove read-only attributes on Windows."""
+    if not os.path.exists(path):
+        return
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
 
 
 def _check_repo_size_mb(owner: str, name: str, token: str = "") -> float:
@@ -164,12 +174,12 @@ def clone_repo(
             )
         except git.InvalidGitRepositoryError:
             logger.warning("Existing directory is not a valid git repo — re-cloning.")
-            shutil.rmtree(local_path)
+            shutil.rmtree(local_path, onerror=_rmtree_onerror)
 
     # 5. Force reclone
     if local_path.exists() and force_reclone:
         _progress("🗑️  Removing existing clone for fresh re-clone ...")
-        shutil.rmtree(local_path)
+        shutil.rmtree(local_path, onerror=_rmtree_onerror)
 
     # 6. Clone
     _progress(f"⬇️  Cloning {owner}/{name} (shallow, depth=1) ...")
@@ -208,7 +218,7 @@ def delete_repo_cache(url: str) -> bool:
         return False
     local_path = _repo_dir(owner, name, cfg.repos_dir)
     if local_path.exists():
-        shutil.rmtree(local_path)
+        shutil.rmtree(local_path, onerror=_rmtree_onerror)
         logger.info(f"Deleted cache for {owner}/{name}")
         return True
     return False
