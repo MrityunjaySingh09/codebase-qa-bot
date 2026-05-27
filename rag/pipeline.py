@@ -23,6 +23,7 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_ollama import ChatOllama
+from langchain_groq import ChatGroq
 from loguru import logger
 
 from config import get_settings
@@ -54,20 +55,28 @@ _setup_tracing()
 # LLM (lazy singleton)
 # ---------------------------------------------------------------------------
 
-_llm: Optional[ChatOllama] = None
+_llm = None
 
 
-def _get_llm(streaming: bool = True) -> ChatOllama:
+def _get_llm(streaming: bool = True):
     global _llm
     if _llm is None:
         cfg = get_settings()
-        _llm = ChatOllama(
-            model=cfg.ollama_llm_model,
-            base_url=cfg.ollama_base_url,
-            temperature=0.1,       # low temp for factual code Q&A
-            num_ctx=8192,          # context window
-        )
-        logger.info(f"LLM: {cfg.ollama_llm_model} @ {cfg.ollama_base_url}")
+        if cfg.groq_api_key:
+            _llm = ChatGroq(
+                model=cfg.groq_llm_model,
+                groq_api_key=cfg.groq_api_key,
+                temperature=0.1,
+            )
+            logger.info(f"LLM: Groq ({cfg.groq_llm_model})")
+        else:
+            _llm = ChatOllama(
+                model=cfg.ollama_llm_model,
+                base_url=cfg.ollama_base_url,
+                temperature=0.1,       # low temp for factual code Q&A
+                num_ctx=8192,          # context window
+            )
+            logger.info(f"LLM: {cfg.ollama_llm_model} @ {cfg.ollama_base_url}")
     return _llm
 
 

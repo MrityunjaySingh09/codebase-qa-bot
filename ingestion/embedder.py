@@ -20,6 +20,7 @@ from typing import Callable, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
 from langchain_ollama import OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from loguru import logger
 from tqdm import tqdm
 
@@ -63,18 +64,24 @@ def _collection_name(repo_url: str) -> str:
 # Embedding model (lazy init)
 # ---------------------------------------------------------------------------
 
-_embed_model: Optional[OllamaEmbeddings] = None
+_embed_model = None
 
 
-def _get_embed_model() -> OllamaEmbeddings:
+def _get_embed_model():
     global _embed_model
     if _embed_model is None:
         cfg = get_settings()
-        _embed_model = OllamaEmbeddings(
-            model=cfg.ollama_embed_model,
-            base_url=cfg.ollama_base_url,
-        )
-        logger.info(f"Embedding model: {cfg.ollama_embed_model} via {cfg.ollama_base_url}")
+        if cfg.embedding_provider.lower() == "huggingface":
+            _embed_model = HuggingFaceEmbeddings(
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            )
+            logger.info("Embedding model: HuggingFace (sentence-transformers/all-MiniLM-L6-v2)")
+        else:
+            _embed_model = OllamaEmbeddings(
+                model=cfg.ollama_embed_model,
+                base_url=cfg.ollama_base_url,
+            )
+            logger.info(f"Embedding model: {cfg.ollama_embed_model} via {cfg.ollama_base_url}")
     return _embed_model
 
 

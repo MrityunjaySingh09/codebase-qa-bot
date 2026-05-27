@@ -17,6 +17,11 @@ class Settings(BaseSettings):
     ollama_llm_model: str = "llama3"
     ollama_embed_model: str = "nomic-embed-text"
 
+    # --- Groq & Provider ---
+    groq_api_key: str = ""
+    groq_llm_model: str = "llama-3.3-70b-versatile"
+    embedding_provider: str = "huggingface"
+
     # --- ChromaDB ---
     chroma_persist_dir: Path = Path("./data/chroma")
     chroma_collection_prefix: str = "codebase_"
