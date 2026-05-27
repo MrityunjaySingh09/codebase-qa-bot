@@ -42,6 +42,12 @@ def ingest_repo(
             progress_callback(stage, msg, pct)
 
     # ── 1. Clone ──────────────────────────────────────────────
+    if force_reclone:
+        try:
+            delete_collection(url)
+        except Exception:
+            pass
+
     _cb("clone", f"Cloning {url} ...", 0.0)
     repo_info = clone_repo(
         url,
