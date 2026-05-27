@@ -59,12 +59,11 @@ _llm: Optional[ChatOllama] = None
 
 def _get_llm(streaming: bool = True) -> ChatOllama:
     global _llm
-    if _llm is None or _llm.streaming != streaming:
+    if _llm is None:
         cfg = get_settings()
         _llm = ChatOllama(
             model=cfg.ollama_llm_model,
             base_url=cfg.ollama_base_url,
-            streaming=streaming,
             temperature=0.1,       # low temp for factual code Q&A
             num_ctx=8192,          # context window
         )
