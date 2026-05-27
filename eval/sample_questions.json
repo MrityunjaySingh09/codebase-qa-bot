@@ -1,0 +1,34 @@
+[
+  {
+    "question": "What is the main purpose of this repository?",
+    "ground_truth": "The repository serves a specific software purpose that can be determined from its README and main entry points."
+  },
+  {
+    "question": "How is the project structured and what are the main modules?",
+    "ground_truth": "The project has a defined directory structure with separate modules for different concerns such as models, views, controllers, or services."
+  },
+  {
+    "question": "What dependencies or libraries does this project use?",
+    "ground_truth": "The project uses several external libraries and frameworks listed in its dependency manifest files like requirements.txt, package.json, or go.mod."
+  },
+  {
+    "question": "Where is the main entry point or application startup code?",
+    "ground_truth": "There is a main file, index file, or app file where the application initialises and starts running."
+  },
+  {
+    "question": "What testing approach and test files exist in this project?",
+    "ground_truth": "The project contains test files in a tests or spec directory that verify the functionality of its components using a test framework."
+  },
+  {
+    "question": "How does error handling work in this codebase?",
+    "ground_truth": "The codebase implements error handling through try-catch blocks, error middleware, or custom exception classes."
+  },
+  {
+    "question": "What configuration or environment variables does this project use?",
+    "ground_truth": "The project uses environment variables or configuration files to manage settings for different environments."
+  },
+  {
+    "question": "Are there any database models or data schemas defined?",
+    "ground_truth": "The project may define database models, schemas, or data structures that represent the application's data layer."
+  }
+]
