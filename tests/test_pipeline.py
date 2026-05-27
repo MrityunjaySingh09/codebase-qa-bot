@@ -212,7 +212,7 @@ class TestParseFile:
         f = subdir / "auth.py"
         f.write_text("def login(): pass")
         chunks = parse_file(f, tmp_path, "https://github.com/a/b")
-        assert all("src/auth.py" in c.file_path for c in chunks)
+        assert all("src/auth.py" in c.file_path.replace("\\", "/") for c in chunks)
 
 
 # ---------------------------------------------------------------------------
@@ -392,17 +392,21 @@ class TestRRF:
 class TestReranker:
     def test_fallback_returns_top_k(self):
         """When cross-encoder unavailable, should return top-k by score."""
+        from unittest.mock import patch
         results = [_make_result(str(i), score=1.0 - i * 0.1) for i in range(10)]
-        reranked = rerank("test query", results, top_k=3)
+        with patch("retrieval.reranker._load_rerank_model", return_value=None):
+            reranked = rerank("test query", results, top_k=3)
         assert len(reranked) == 3
 
     def test_fallback_preserves_order(self):
+        from unittest.mock import patch
         results = [
             _make_result("high", score=0.9),
             _make_result("mid",  score=0.5),
             _make_result("low",  score=0.1),
         ]
-        reranked = rerank("test query", results, top_k=3)
+        with patch("retrieval.reranker._load_rerank_model", return_value=None):
+            reranked = rerank("test query", results, top_k=3)
         # Without cross-encoder, should be sorted by score descending
         assert reranked[0].chunk_id == "high"
 
